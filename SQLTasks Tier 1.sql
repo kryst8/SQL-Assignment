@@ -94,9 +94,14 @@ Include in your output the name of the court, and the name of the member
 formatted as a single column. Ensure no duplicate data, and order by
 the member name. */
 
-SELECT court,name of t
-
-
+SELECT DISTINCT members.firstname mems.surname AS member; 
+from  members AS m
+       
+    inner join bookings on members.memid = bookings.memid
+    inner join facilities on bookings.facid = facilities.facid
+where
+    facilities.name in ('Tennis Court 2','Tennis Court 1')
+order by member, facility          
 
 
 /* Q8: Produce a list of bookings on the day of 2012-09-14 which
@@ -106,31 +111,29 @@ the guest user's ID is always 0. Include in your output the name of the
 facility, the name of the member formatted as a single column, and the cost.
 Order by descending cost, and do not use any subqueries. */
 
-select members.firstname || ' ' || members.surname AS member, 
-facilities.name AS facility, 
-    case 
-        when members.memberid = 0 
-        then
-                bookings.slots*facilies.guestcosts
-        else
-            bookings.slots*facs.membercost
-    end as cost
-        from
-                cd.members AS mems                
-                inner join cd.bookings AS bks
-                        on mems.memid = bks.memid
-                inner join cd.facilities AS facs
-                        on bookings.facid = facs.facid
-        where
-        bookings.starttime >= '2012-09-14' and 
-        bookings.starttime < '2012-09-15' and 
-        (members.memid = 0 and bookings.slots*facs.guestcost > 30) or
-            (members.memid != 0 and bookingss.slots*facility.membercost > 30)
-order by cost desc;  
-
+select members.firstname, members.surname, facilities.name,
+case 
+    when members.memid = 0 
+    then bookings.slots * facilities.guestcost
+        else bookings.slots * facilities.membercost
+end AS cost
+from members 
+    inner join cd.bookings on members.memid = bookings.memid
+    inner join cd.facilities on bookings.facid = facilities.facid
+where 
+bookings.starttime >= '2012-09-14' 
 
 /* Q9: This time, produce the same result as in Q8, but using a subquery. */
 
+SELECT Facilities.name AS facility,  Members.firstname,  ' ', Members.surname  AS member, 
+        CASE 
+                    WHEN Bookings.memid =0
+                    THEN Facilities.guestcost * Bookings.slots
+                    ELSE Facilities.membercost * Bookings.slots
+        END AS cost
+FROM Bookings
+INNER JOIN Facilities ON Bookings.facid = Facilities.facid
+AND Bookings.starttime LIKE  '2012-09-14%'
 
 /* PART 2: SQLite
 /* We now want you to jump over to a local instance of the database on your machine. 
@@ -152,22 +155,15 @@ QUESTIONS:
 The output of facility name and total revenue, sorted by revenue. Remember
 that there's a different cost for guests and members! */
 
-SELCECT  name, revenue from (
-                SELECT facilites.name, SUM(case 
-                    WHEN memberid = 0 then slots * faciliess.guestcost
-                        else slots * membercost
-                        end) as revenue
-                FROM cd.bookings bks
-        INNER JOIN cd.facilities facs
-            on bookings.facid = facilites.facid;        
+select facilities.name, 
+    sum(case 
+            when memid = 0 then slots * facilities.guestcost
+        else slots * membercost
+        end) < 1000
+order by revenue;      
   
 /* Q11: Produce a report of members and who recommended them in alphabetic surname,firstname order */
 
-SELECT lastname,firstname, employee_id, salary  
-FROM employees  
-WHERE manager_id = 
-(SELECT employee_id  
-FROM employees  
-WHERE first_name = 'Payam' 
-);
-
+SELECT firstname.members, surname.memberS
+FROM reccomended.members
+ORDER BY surname, firstname;
