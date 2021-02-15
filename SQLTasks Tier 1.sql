@@ -94,7 +94,7 @@ Include in your output the name of the court, and the name of the member
 formatted as a single column. Ensure no duplicate data, and order by
 the member name. */
 
-SELECT DISTINCT members.firstname mems.surname AS member; 
+SELECT DISTINCT members.firstname members.surname AS member; 
 from  members AS m
        
     inner join bookings on members.memid = bookings.memid
